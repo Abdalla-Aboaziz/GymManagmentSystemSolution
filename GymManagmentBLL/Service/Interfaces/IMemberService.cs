@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 
 namespace GymManagmentBLL.Service.Interfaces
 {
-    internal interface IMemberService
+    public  interface IMemberService
     {
         IEnumerable<MemberViewModel>GetAllMember();
-        bool GreateMember(CreateMemberViewModel createMember);
+        bool CreateMember(CreateMemberViewModel createMember);
         MemberViewModel? GetMemberDetails(int Memberid);
 
         HealthRecordViewModel? GetMemberHealthRecordDetails(int Memberid);
