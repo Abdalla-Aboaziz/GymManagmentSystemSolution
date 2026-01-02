@@ -74,18 +74,19 @@ namespace GymManagmentPL
             using var scope = app.Services.CreateScope();
             var dbcontext = scope.ServiceProvider.GetRequiredService<GymDbContext>();
 
-            // Seed initial data
-            GymDbContextSeeding.SeedData(
-                dbcontext,
-                app.Environment.ContentRootPath
-            );
-
             // Apply pending migrations automatically
             var pendingMigrations = dbcontext.Database.GetPendingMigrations();
             if (pendingMigrations?.Any() ?? false)
             {
                 dbcontext.Database.Migrate();
             }
+            // Seed initial data
+            GymDbContextSeeding.SeedData(
+                dbcontext,
+                app.Environment.ContentRootPath
+            );
+
+          
 
             #endregion
 

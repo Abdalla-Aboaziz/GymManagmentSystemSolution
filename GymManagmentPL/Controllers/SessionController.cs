@@ -44,7 +44,8 @@ namespace GymManagmentPL.Controllers
         public ActionResult Create()
         {
             // Load Categories and Trainers for dropdown lists
-            LoadDropdowns();
+            LoadDropdownsCategory();
+            LoadDropdownsTrainer();
             return View();
         }
 
@@ -61,7 +62,8 @@ namespace GymManagmentPL.Controllers
             {
                 // Reload dropdown data because ViewBag
                 // does not persist after a POST request
-                LoadDropdowns();
+                 LoadDropdownsCategory();
+                LoadDropdownsTrainer();
                 // Return the view with validation errors
                 return View(createSession);
 
@@ -80,24 +82,102 @@ namespace GymManagmentPL.Controllers
                 // Store error message to be displayed after redirect
                 TempData["ErrorMessage"] = "Session Creation Failed";
                 // Reload dropdowns before returning the view
-                LoadDropdowns();
+                LoadDropdownsCategory();
+                LoadDropdownsTrainer();
                 return View(createSession);
             }
         }
-        
+        public ActionResult Edit (int id)
+        {
+                       if (id <= 0)
+            {
+                TempData["ErrorMessage"] = "Invalid Session ID.";
+                return RedirectToAction(nameof(Index));
+            }
+            var session = _sessionService.GetSessionById(id);
+            if (session is null)
+            {
+                TempData["ErrorMessage"] = "Session Not Found";
+                return RedirectToAction(nameof(Index));
+            }
 
+            LoadDropdownsTrainer();
+
+
+            return View(session);
+        }
+
+        [HttpPost]
+        public ActionResult Edit ([FromRoute]int id, UpdateSessionViewModel updateSession)
+        {
+            if (!ModelState.IsValid)
+            {
+                LoadDropdownsTrainer();
+                return View(updateSession);
+            }
+            var result = _sessionService.UpdateSession( id, updateSession);
+            if (result)
+            {
+                TempData["SuccessMessage"] = "Session Updated Successfully";
+               
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Session Update Failed";
+              
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+        
+        public ActionResult Delete(int id)
+        {
+            if (id <= 0)
+            {
+                TempData["ErrorMessage"] = "Invalid Session ID.";
+                return RedirectToAction(nameof(Index));
+            }
+            var session = _sessionService.GetSessionById(id);
+            if (session is null)
+            {
+                TempData["ErrorMessage"] = "Session Not Found";
+                return RedirectToAction(nameof(Index));
+            }
+            ViewBag.SessionId = session.Id;
+            return View(session);
+        }
+
+        [HttpPost]
+        public ActionResult DeleteConfirmed(int id)
+        {
+            var result = _sessionService.RemoveSession(id);
+            if (result)
+            {
+                TempData["SuccessMessage"] = "Session Deleted Successfully";
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Session Deletion Failed";
+            }
+            return RedirectToAction(nameof(Index));
+        }
 
 
         #region Helper Method
-        // Helper method used to load dropdown list data
+        // Two Helper methods used to load dropdown list data
         // for Categories and Trainers.
         // Called in both GET and POST actions when needed.
-        private void LoadDropdowns()
+        private void LoadDropdownsCategory()
         {
             // Retrieve categories for selection
             var categories = _sessionService.GetAllCategoriesForSelect();
             // Map categories to SelectList (Id as Value, Name as Text)
             ViewBag.Categories = new SelectList(categories, "Id", "Name");
+           
+        }
+
+        private void LoadDropdownsTrainer()
+        {
             // Retrieve trainers for selection
             var trainers = _sessionService.GetAllTrainersForSelect();
             // Map trainers to SelectList (Id as Value, Name as Text)
