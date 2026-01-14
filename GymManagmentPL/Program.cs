@@ -59,6 +59,7 @@ namespace GymManagmentPL
             builder.Services.AddScoped<IPlanService, PlanService>();
             builder.Services.AddScoped<ISessionService, SessionService>();
             builder.Services.AddScoped<IAttachmentService, AttachmentService>();
+            builder.Services.AddScoped<IMemberShipReprsitory, MemberShipRepository>();
             builder.Services.AddScoped<IMemberShipServices, MemberShipServices>();
 
             builder.Services.AddScoped<IAccountService, AccountService>();
