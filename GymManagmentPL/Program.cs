@@ -2,11 +2,17 @@ using GymManagementBLL.Services.Classes;
 using GymManagementBLL.Services.Interfaces;
 using GymManagmentBLL;
 using GymManagmentBLL.Service.Classes;
+using GymManagmentBLL.Service.Classes.Account;
+using GymManagmentBLL.Service.Classes.AttachmentService;
 using GymManagmentBLL.Service.Interfaces;
+using GymManagmentBLL.Service.Interfaces.Account;
+using GymManagmentBLL.Service.Interfaces.AttachmentService;
 using GymManagmentDAL.Data.Context;
 using GymManagmentDAL.Data.DataSeeding;
+using GymManagmentDAL.Entites;
 using GymManagmentDAL.Reposotories.Classes;
 using GymManagmentDAL.Reposotories.Interfaces;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace GymManagmentPL
@@ -52,6 +58,27 @@ namespace GymManagmentPL
             builder.Services.AddScoped<ITrainerService, TrainerService>();
             builder.Services.AddScoped<IPlanService, PlanService>();
             builder.Services.AddScoped<ISessionService, SessionService>();
+            builder.Services.AddScoped<IAttachmentService, AttachmentService>();
+            builder.Services.AddScoped<IMemberShipServices, MemberShipServices>();
+
+            builder.Services.AddScoped<IAccountService, AccountService>();
+            // Identity Services
+            builder.Services.AddIdentity<ApplicationUser, IdentityRole>(confg =>
+            {
+                //confg.Password.RequiredLength = 6;
+                //confg.Password.RequireLowercase = true;
+                //confg.Password.RequireUppercase = true;
+                confg.User.RequireUniqueEmail = true;
+
+            }).AddEntityFrameworkStores<GymDbContext>();
+            builder.Services.ConfigureApplicationCookie(options =>
+            {
+                options.LoginPath = "/Account/Login";
+                options.AccessDeniedPath = "/Account/AccessDenied";
+            });
+
+
+
 
 
             #region AutoMapper Configuration
@@ -73,6 +100,10 @@ namespace GymManagmentPL
             // Create scope for database operations at startup
             using var scope = app.Services.CreateScope();
             var dbcontext = scope.ServiceProvider.GetRequiredService<GymDbContext>();
+            // Identity managers for seeding
+            var roleManger = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+            // Identity user manager
+            var userManger = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
             // Apply pending migrations automatically
             var pendingMigrations = dbcontext.Database.GetPendingMigrations();
@@ -85,8 +116,10 @@ namespace GymManagmentPL
                 dbcontext,
                 app.Environment.ContentRootPath
             );
+            // Seed Identity data
+            IdentityDbContextSeeding.SeedData(roleManger, userManger);
 
-          
+
 
             #endregion
 
@@ -100,13 +133,14 @@ namespace GymManagmentPL
             app.UseHttpsRedirection();
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             // Static files & default routing
             app.MapStaticAssets();
             app.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}"
+                    pattern: "{controller=Account}/{action=Login}/{id?}"
                 )
                 .WithStaticAssets();
 

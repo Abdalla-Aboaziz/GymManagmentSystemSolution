@@ -86,6 +86,7 @@ namespace GymManagmentPL.Controllers
 
 
         }
+
         [HttpPost]
         public ActionResult EditTrainer([FromRoute] int id, UpdateTrainerViewModel updateTrainer)
         {

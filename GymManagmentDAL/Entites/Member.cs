@@ -10,7 +10,7 @@ namespace GymManagmentDAL.Entites
     {
         // join date == createdAt of BaseEntity  // handeled with fluent Api
 
-        public string ? Phote { get; set; }
+        public string Phote { get; set; } = null!;
 
         #region Member-HealthRecord
         public HealthRecord HealthRecord { get; set; } = null!; // for relation 1:1 total from both (Member-HealthRecord)

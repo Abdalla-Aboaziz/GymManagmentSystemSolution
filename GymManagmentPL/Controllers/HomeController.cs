@@ -1,9 +1,11 @@
 ﻿using GymManagmentBLL.Service.Interfaces;
 using GymManagmentDAL.Entites;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GymManagmentPL.Controllers
 {
+    [Authorize(Roles = "SuperAdmin")]
     public class HomeController : Controller
     {
         //  Action method  handle requests to the home page 

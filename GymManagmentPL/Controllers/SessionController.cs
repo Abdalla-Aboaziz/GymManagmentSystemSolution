@@ -94,7 +94,7 @@ namespace GymManagmentPL.Controllers
                 TempData["ErrorMessage"] = "Invalid Session ID.";
                 return RedirectToAction(nameof(Index));
             }
-            var session = _sessionService.GetSessionById(id);
+            var session = _sessionService.GetSessionToUpdate(id);
             if (session is null)
             {
                 TempData["ErrorMessage"] = "Session Not Found";

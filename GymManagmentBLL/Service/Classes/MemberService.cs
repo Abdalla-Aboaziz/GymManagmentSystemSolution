@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using GymManagmentBLL.Service.Interfaces;
+using GymManagmentBLL.Service.Interfaces.AttachmentService;
 using GymManagmentBLL.ViewModels.MemberViewModel;
 using GymManagmentDAL.Entites;
 using GymManagmentDAL.Reposotories.Interfaces;
@@ -15,6 +16,7 @@ namespace GymManagmentBLL.Service.Classes
     {
         private readonly IUnitOfWork _unitOfWork; // register Service in Program.cs
         private readonly IMapper _mapper;
+        private readonly IAttachmentService _attachmentService;
         #region Before UnitOfWork
         //private readonly IGenericRepository<Member> _memberRepository;  // object from repo to accses database 
         //private readonly IGenericRepository<MemberShip> _membershipRepository;
@@ -37,10 +39,11 @@ namespace GymManagmentBLL.Service.Classes
         //} 
         #endregion
 
-        public MemberService(IUnitOfWork unitOfWork,IMapper mapper)
+        public MemberService(IUnitOfWork unitOfWork,IMapper mapper,IAttachmentService attachmentService)
         {
             _unitOfWork = unitOfWork;
            _mapper = mapper;
+          _attachmentService = attachmentService;
         }
 
         public IEnumerable<MemberViewModel> GetAllMember()
@@ -90,10 +93,13 @@ namespace GymManagmentBLL.Service.Classes
 
         public bool CreateMember(CreateMemberViewModel createMember)
         {
-            if (IsEmailExist(createMember.Email) || IsPhoneExist(createMember.Phone)) return false;
+
 
             try
             {
+
+
+                #region BeforeAutoMapper
                 //// check is Email is Exist
                 //var emailexist = _memberRepository.GetAll(x => x.Email == createMember.Email).Any();
 
@@ -104,7 +110,7 @@ namespace GymManagmentBLL.Service.Classes
 
                 //if (emailexist || phoneexist) return false;
 
-                #region BeforeAutoMapper
+
                 // mapping from creatememberviewmodel  to member
                 //var member = new Member()
                 //{
@@ -131,13 +137,26 @@ namespace GymManagmentBLL.Service.Classes
                 //   return _memberRepository.Add(member) > 0;
                 #endregion
 
-                var memberEntity=_mapper.Map<CreateMemberViewModel,Member>(createMember); // mapping from createMemberViewModel to member entity
+                if (IsEmailExist(createMember.Email) || IsPhoneExist(createMember.Phone)) return false;
+                var photoName = _attachmentService.Upload("members", createMember.photoFile); // upload photo to wwwroot/images/members
+                if (string.IsNullOrEmpty(photoName)) return false;
+                var memberEntity = _mapper.Map<CreateMemberViewModel, Member>(createMember); // mapping from createMemberViewModel to member entity
 
+                memberEntity.Phote = photoName; 
 
 
                 _unitOfWork.GetRepository<Member>().Add(memberEntity);
-              return _unitOfWork.SaveChange()>0;
+                var IsCreated = _unitOfWork.SaveChange() > 0;
+                if (!IsCreated)
+                {
+                    _attachmentService.Delete(photoName, "members");
+                    return false;
+                }
+                else
+                {
+                    return IsCreated;
 
+                }
             }
             catch (Exception)
             {
@@ -308,7 +327,15 @@ namespace GymManagmentBLL.Service.Classes
                 //  return _memberRepository.Delete(member) > 0;
 
                 MemberRepo.Delete(member);
-                return _unitOfWork.SaveChange() > 0;
+
+               var IsDeleted= _unitOfWork.SaveChange() > 0;
+
+                if (IsDeleted) _attachmentService.Delete(member.Phote, "members"); // delete photo from wwwroot/images/members
+
+
+                return IsDeleted;
+                
+               
 
             }
             catch 

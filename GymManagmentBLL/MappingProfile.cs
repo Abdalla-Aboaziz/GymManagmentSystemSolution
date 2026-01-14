@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using GymManagementBLL.ViewModels.TrainerViewModel;
+using GymManagmentBLL.ViewModels.MemberShipViewModel;
 using GymManagmentBLL.ViewModels.MemberViewModel;
 using GymManagmentBLL.ViewModels.PlanViewModel;
 using GymManagmentBLL.ViewModels.SessionViewModel;
@@ -20,6 +21,7 @@ namespace GymManagmentBLL
             MapMember();
             MapPlan();
             MapSession();
+            MapMemberShip();
 
 
         }
@@ -120,6 +122,20 @@ namespace GymManagmentBLL
             CreateMap<UpdatePlanViewModel,Plan>()
                 .ForMember(dest=>dest.Name,opt=>opt.Ignore())
                 .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => DateTime.Now));
+
+        }
+
+        private void MapMemberShip()
+        {
+            CreateMap<Member, MemberSelectViewModel>();
+            CreateMap<Plan, PlanSelectViewModel>();
+            CreateMap<MemberShip, MemberShipViewModel>()
+           .ForMember(d => d.MemberId, o => o.MapFrom(s => s.MemberId))
+           .ForMember(d => d.PlanId, o => o.MapFrom(s => s.PlanId))
+           .ForMember(d => d.MemberName, o => o.MapFrom(s => s.Member.Name))
+           .ForMember(d => d.PlanName, o => o.MapFrom(s => s.Plan.Name))
+           .ForMember(d => d.StartDate, o => o.MapFrom(s => s.CreatedAt));
+
 
         }
     }

@@ -10,6 +10,7 @@ namespace GymManagmentDAL.Reposotories.Interfaces
  public interface IUnitOfWork
     {
         public ISessionRepository SessionRepository { get; }
+        public IMemberShipReprsitory MemberShipReprsitory { get; }
 
         IGenericRepository<TEntity> GetRepository<TEntity>() where TEntity : BaseEntity,new(); // for automaic create object fromtype IGenericRepository<neededEntity> ==> work on same object  on  any request (better performance)
 

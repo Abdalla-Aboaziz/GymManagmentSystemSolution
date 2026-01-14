@@ -1,6 +1,10 @@
 ﻿
 @model IEnumerable<TrainerViewModel>
 
+@{
+    ViewData["Title"] = "Trainers ";
+}
+
     @if (TempData["SuccessMessage"] is not null)
     {
 <div id="Alert" class="alert alert-success alert-dismissible fade show">
@@ -49,7 +53,7 @@
                         <tr>
                             <td><span class="fw-bold">@trainer.Name</span></td>
                             <td><span>@trainer.Email</span></td>
-                            <td><span>@trainer.Name</span></td>
+                            <td><span>@trainer.Phone</span></td>
                             <td>
                                 <span class="badge bg-primary-color">GeneralFitness</span>
                             </td>
@@ -73,8 +77,8 @@
                                             <hr class="dropdown-divider">
                                         </li>
                                         <li>
-                                            <a asp-controller="Trainer" asp-action="EditTrainer" asp-route-id="@trainer.Id
-                                            class="dropdown-item d-flex align-items-center gap-3">
+                                            <a asp-controller="Trainer" asp-action="EditTrainer" asp-route-id="@trainer.Id"
+                                               class="dropdown-item d-flex align-items-center gap-3">
                                                 <i class="bi bi-pencil text-primary-color"></i>
                                                 <span>Edit Details</span>
                                             </a>
@@ -83,8 +87,9 @@
                                             <hr class="dropdown-divider">
                                         </li>
                                         <li>
-                                            <a asp-controller="Trainer" asp-action="DeleteTrainer" asp-route-id="@trainer.Id
-                                            class="dropdown-item d-flex align-items-center gap-3 text-danger">
+                                            
+                                            <a asp-controller="Trainer" asp-action="DeleteTrainer" asp-route-id="@trainer.Id"
+                                                   class="dropdown-item d-flex align-items-center gap-3 text-danger">
                                                 <i class="bi bi-trash"></i>
                                                 <span>Delete</span>
                                             </a>
